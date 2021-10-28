@@ -13,9 +13,8 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-        $this->call([
-            AgencySeeder::class
-        ]);
+        $this->call(AgencySeeder::class);
+        $this->call(ShapesTableSeeder::class);
         $this->call(ShapesTableSeeder::class);
     }
 }
