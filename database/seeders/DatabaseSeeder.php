@@ -15,6 +15,6 @@ class DatabaseSeeder extends Seeder
     {
         $this->call(AgencySeeder::class);
         $this->call(ShapesTableSeeder::class);
-        $this->call(ShapesTableSeeder::class);
+        $this->call(RouteTableSeeder::class);
     }
 }
