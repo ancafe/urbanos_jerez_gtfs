@@ -12,4 +12,5 @@ class Route extends Model
     protected $table = 'route';
     protected $primaryKey = 'route_id';
     protected $guarded = [];
+
 }

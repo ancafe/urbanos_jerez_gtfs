@@ -33,7 +33,6 @@ class AutoFeedJerez extends Controller
         $client = new Client();
         $crawler = $client->request('GET', $url);
         $crawler->filter('#c13421 select option')->each(function ($node) {
-
             $linea_id = intval($node->attr('value'));
             $linea_nombre = $node->text();
 
@@ -46,8 +45,8 @@ class AutoFeedJerez extends Controller
                 ];
                 Route::firstOrCreate($data);
             }
-
         });
+
         return true;
     }
 
