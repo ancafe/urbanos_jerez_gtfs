@@ -18,6 +18,7 @@ class CreateRoutesTable extends Migration
             $table->string('route_short_name');
             $table->string('route_long_name')->nullable();
             $table->string('route_color')->nullable();
+            $table->string('route_url')->nullable();
             $table->integer('route_type')->default(3);
             $table->timestamps();
         });

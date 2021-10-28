@@ -16,5 +16,6 @@ class DatabaseSeeder extends Seeder
         $this->call([
             AgencySeeder::class
         ]);
+        $this->call(ShapesTableSeeder::class);
     }
 }

@@ -14,9 +14,9 @@ class CreateShapesTable extends Migration
     public function up()
     {
         Schema::create('shapes', function (Blueprint $table) {
-            $table->integer('shape_id',true);
-            $table->decimal('shape_pt_lat',9,6);
-            $table->decimal('shape_pt_lon',9,6);
+            $table->string('shape_id',12);
+            $table->decimal('shape_pt_lat',10,8);
+            $table->decimal('shape_pt_lon',11,8);
             $table->integer('shape_pt_sequence');
             $table->timestamps();
         });

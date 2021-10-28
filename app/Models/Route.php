@@ -11,6 +11,5 @@ class Route extends Model
 
     protected $table = 'route';
     protected $primaryKey = 'route_id';
-
-    protected $fillable = ['route_id','route_short_name','route_long_name','route_type'];
+    protected $guarded = [];
 }

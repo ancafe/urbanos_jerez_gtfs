@@ -9,6 +9,7 @@ class Stop extends Model
 {
     use HasFactory;
 
+    protected $guarded = [];
     protected $table = 'stop';
     protected $primaryKey = 'stop_id';
 }
