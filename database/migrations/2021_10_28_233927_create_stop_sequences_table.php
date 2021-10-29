@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateCalendarDatesTable extends Migration
+class CreateStopSequencesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,10 +13,10 @@ class CreateCalendarDatesTable extends Migration
      */
     public function up()
     {
-        Schema::create('calendar_dates', function (Blueprint $table) {
-            $table->string('service_id');
-            $table->date('date');
-            $table->integer('exception_type');
+        Schema::create('stop_sequences', function (Blueprint $table) {
+            $table->integer("route_id");
+            $table->integer("stop_id");
+            $table->integer("order");
             $table->timestamps();
         });
     }
@@ -28,6 +28,6 @@ class CreateCalendarDatesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('calendar_dates');
+        Schema::dropIfExists('stop_sequences');
     }
 }

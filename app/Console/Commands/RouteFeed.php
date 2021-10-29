@@ -5,6 +5,8 @@ namespace App\Console\Commands;
 use App\Models\Agency;
 use App\Models\Route;
 use App\Models\Stop;
+use App\Models\StopSequence;
+use App\Models\StopTime;
 use Goutte\Client;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\App;
@@ -64,7 +66,7 @@ class RouteFeed extends Command
             'valorLinea' => $route->route_id,
         ]);
 
-        $crawler->filter('select option')->each(function ($node) {
+        $crawler->filter('select option')->each(function ($node, $orden) use ($route) {
             $stop_id = intval($node->attr('value'));
             $stop_name = $node->text();
 
@@ -74,6 +76,14 @@ class RouteFeed extends Command
                     'stop_name' => $stop_name,
                 ];
                 Stop::firstOrCreate($data);
+
+                $data = [
+                    'route_id' => $route->route_id,
+                    'stop_id' => $stop_id,
+                    'order' => $orden,
+                ];
+                StopSequence::firstOrCreate($data);
+
             }
         });
     }
@@ -87,27 +97,47 @@ class RouteFeed extends Command
             'valorLinea' => $route->route_id,
         ]);
 
-        $crawler->filter('.tx-jn-phpcontentelement>div')->each(function ($node) {
+
+        $crawler->filter('.tx-jn-phpcontentelement > div')->each(function ($node) use ($stop, $route){
+
 
             $caja = $node->text();
+
+            if (str_contains($caja,'Laborales')) {
+                $service_id = 'INVLAB';
+            }
+
+            if (str_contains($caja,'Sábados')) {
+                $service_id = 'INVSAB';
+            }
+
+            if (str_contains($caja, 'Domingos y Festivos')) {
+                $service_id = 'INVDOM';
+            }
+
+            $this->info("");
             $buscaHorarios = "/([0-9]{2}:[0-9]{2})/";
-
-            if (str_contains('Laborables', $caja)) {
-                var_dump('L');
-            }
-
-            if (str_contains('Sábados', $caja)) {
-                var_dump('S');
-            }
-
-            if (str_contains('Domingos y Festivos', $caja)) {
-                var_dump('D');
-            }
 
             $check_hash = preg_match_all($buscaHorarios, $caja, $esHorario);
             foreach ($esHorario[1] as $horario) {
-                var_dump($horario);
+
+                $sq = StopSequence::where('route_id',$route->route_id)
+                    ->where('stop_id',$stop->stop_id)->first();
+
+                $data = [
+                    'trip_id' => 1,
+                    'arrival_time' => $horario,
+                    'departure_time' => $horario,
+                    'stop_id' => $stop->stop_id,
+                    'stop_sequence' => $sq->order,
+                ];
+                StopTime::firstOrCreate($data);
+
             }
+
         });
+
+        dd("FIN FORZADO");
+
     }
 }

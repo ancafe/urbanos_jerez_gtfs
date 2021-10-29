@@ -14,7 +14,7 @@ class CreateCalendarsTable extends Migration
     public function up()
     {
         Schema::create('calendar', function (Blueprint $table) {
-            $table->integer('service_id', true);
+            $table->string('service_id');
             $table->tinyInteger('monday');
             $table->tinyInteger('tuesday');
             $table->tinyInteger('wednesday');

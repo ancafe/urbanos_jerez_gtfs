@@ -15,9 +15,9 @@ class CreateTripsTable extends Migration
     {
         Schema::create('trips', function (Blueprint $table) {
             $table->integer('route_id');
-            $table->integer('service_id');
+            $table->string('service_id');
             $table->id('trip_id',true);
-            $table->string('trip_headsign',255);
+            $table->string('trip_headsign',255)->nullable();
             $table->integer('direction_id');
             $table->string('shape_id',50);
             $table->timestamps();
