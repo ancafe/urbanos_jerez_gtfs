@@ -2,14 +2,13 @@
 
 namespace App\Console\Commands;
 
-use App\Models\Agency;
 use App\Models\Route;
 use App\Models\Stop;
 use App\Models\StopSequence;
 use App\Models\StopTime;
+use App\Models\Trip;
 use Goutte\Client;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\App;
 
 class RouteFeed extends Command
 {
@@ -47,13 +46,12 @@ class RouteFeed extends Command
         $linea_id = $this->argument('linea');
         $route = Route::find($linea_id);
         $this->feedParadas($route);
-        $paradas = Stop::all();
+        $paradas = StopSequence::where('route_id', $route->route_id)->orderBy('order')->get();
 
         foreach ($paradas as $parada) {
-            //$this->feedHorarios($parada, $route);
+            $stop = Stop::find($parada->stop_id);
+            $this->feedHorarios($stop, $route);
         }
-
-        $this->feedHorarios(Stop::find(453), $route);
 
         return Command::SUCCESS;
     }
@@ -83,7 +81,6 @@ class RouteFeed extends Command
                     'order' => $orden,
                 ];
                 StopSequence::firstOrCreate($data);
-
             }
         });
     }
@@ -98,16 +95,15 @@ class RouteFeed extends Command
         ]);
 
 
-        $crawler->filter('.tx-jn-phpcontentelement > div')->each(function ($node) use ($stop, $route){
-
-
+        $crawler->filter('.tx-jn-phpcontentelement > div')->each(function ($node) use ($stop, $route) {
             $caja = $node->text();
 
-            if (str_contains($caja,'Laborales')) {
+            $service_id = null;
+            if (str_contains($caja, 'Laborales')) {
                 $service_id = 'INVLAB';
             }
 
-            if (str_contains($caja,'Sábados')) {
+            if (str_contains($caja, 'Sábados')) {
                 $service_id = 'INVSAB';
             }
 
@@ -115,29 +111,28 @@ class RouteFeed extends Command
                 $service_id = 'INVDOM';
             }
 
-            $this->info("");
-            $buscaHorarios = "/([0-9]{2}:[0-9]{2})/";
+            if ($service_id) {
+                $this->info($route->route_short_name . " >> " . $stop->stop_name . " >> " . $service_id);
 
-            $check_hash = preg_match_all($buscaHorarios, $caja, $esHorario);
-            foreach ($esHorario[1] as $horario) {
+                $trip = Trip::where('service_id', $service_id)->where('route_id', $route->route_id)->first();
 
-                $sq = StopSequence::where('route_id',$route->route_id)
-                    ->where('stop_id',$stop->stop_id)->first();
+                $buscaHorarios = "/([0-9]{2}:[0-9]{2})/";
 
-                $data = [
-                    'trip_id' => 1,
-                    'arrival_time' => $horario,
-                    'departure_time' => $horario,
-                    'stop_id' => $stop->stop_id,
-                    'stop_sequence' => $sq->order,
-                ];
-                StopTime::firstOrCreate($data);
+                $check_hash = preg_match_all($buscaHorarios, $caja, $esHorario);
+                foreach ($esHorario[1] as $horario) {
+                    $sq = StopSequence::where('route_id', $route->route_id)
+                        ->where('stop_id', $stop->stop_id)->first();
 
+                    $data = [
+                        'trip_id' => $trip->trip_id,
+                        'arrival_time' => $horario,
+                        'departure_time' => $horario,
+                        'stop_id' => $stop->stop_id,
+                        'stop_sequence' => $sq->order,
+                    ];
+                    StopTime::firstOrCreate($data);
+                }
             }
-
         });
-
-        dd("FIN FORZADO");
-
     }
 }
